@@ -36,6 +36,21 @@ class SheetsCell {
         );
     }
 
+    public function sheetscell_option_callback() {?>
+        <div class="wrap">
+            <h2>SheetsCell Settings</h2>
+            <form method="post" action="options.php">
+                <?php
+                    //Output the settings fields
+                    settings_fields( 'myplugin_settings' );
+                    do_settings_sections( 'myplugin_settings' );
+                    submit_button();
+                ?>
+            </form>
+        </div>
+    <?php }
+
+    
     public function sheetscell_register_settings() {
         // Register the plugin's settings
         register_setting(
@@ -97,19 +112,6 @@ class SheetsCell {
         echo '<input type="text" name="myplugin_settings[sheets_id]" value="' . $google_sheets_id . '" />';
     }
 
-    public function sheetscell_option_callback() {?>
-        <div class="wrap">
-            <h2>My Plugin Settings</h2>
-            <form method="post" action="options.php">
-                <?php
-                    //Output the settings fields
-                    settings_fields( 'myplugin_settings' );
-                    do_settings_sections( 'myplugin_settings' );
-                    submit_button();
-                ?>
-            </form>
-        </div>
-    <?php }
 
     /**
      * Function to genarate shortcode
@@ -123,37 +125,40 @@ class SheetsCell {
         $apiInputData = $options['google_api_key'];
         //Google Sheets ID
         $sheets_id = $options['sheets_id'];
-        //$API = 'AIzaSyBvT04d04wLj1QCwj3yS-ElJd-U3xEgk_Y';
-        $API = "{$apiInputData}";
-        //$google_spreadsheet_ID = '1SyAeH3Hl7XMvPzE-BUXqW86BvGYPxgtm3VjIi4nx5bM';
-        $google_spreadsheet_ID = "{$sheets_id}";
 
-        $api_key  = esc_attr( $API );
-        $location = $atts['cell_id'];
-        $get_cell = new WP_Http();
-        $cell_url = "https://sheets.googleapis.com/v4/spreadsheets/$google_spreadsheet_ID/values/$location?&key=$api_key";
-        $request  = wp_remote_get( $cell_url );
+        if( $apiInputData == '' && $sheets_id == '' ){
+            echo "Looks Both Empty!";
+        } else{
+            //$API = 'AIzaSyBvT04d04wLj1QCwj3yS-ElJd-U3xEgk_Y';
+            $API = "{$apiInputData}";
+            //$google_spreadsheet_ID = '1SyAeH3Hl7XMvPzE-BUXqW86BvGYPxgtm3VjIi4nx5bM';
+            $google_spreadsheet_ID = "{$sheets_id}";
+            $api_key  = esc_attr( $API );
+            $location = $atts['cell_id'];
+            $get_cell = new WP_Http();
+            $cell_url = "https://sheets.googleapis.com/v4/spreadsheets/$google_spreadsheet_ID/values/$location?&key=$api_key";
+            $request  = wp_remote_get( $cell_url );
+            $wp_response = wp_remote_retrieve_response_code( $request );
 
-        $wp_response = wp_remote_retrieve_response_code( $request );
-
-        if ( 404 === $wp_response ) {
-            echo "Sheets ID Error Genarated";
-        } else {
-            $cell_response = $get_cell->get( $cell_url );
-            $json_body     = json_decode( $cell_response['body'], true );
-
-            if ( isset( $json_body["error"] ) ) {
-                $error = $json_body["error"];
+            if ( 404 === $wp_response ) {
+                echo "Sheets ID Error Genarated";
             } else {
-                // No error occurred
-                // ...
-            }
+                $cell_response = $get_cell->get( $cell_url );
+                $json_body     = json_decode( $cell_response['body'], true );
 
-            if ( isset( $error["status"] ) && $error["status"] == "INVALID_ARGUMENT" ) {
-                echo $error["message"];
-            } else {
-                $cell_value = $json_body["values"][0][0];
-                return $cell_value;
+                if ( isset( $json_body["error"] ) ) {
+                    $error = $json_body["error"];
+                } else {
+                    // No error occurred
+                    // ...
+                }
+
+                if ( isset( $error["status"] ) && $error["status"] == "INVALID_ARGUMENT" ) {
+                    echo $error["message"];
+                } else {
+                    $cell_value = $json_body["values"][0][0];
+                    return $cell_value;
+                }
             }
         }
 
