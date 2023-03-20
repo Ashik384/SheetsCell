@@ -94,7 +94,9 @@ class SheetsCell {
     }
 
     public function output_general_section() {
-        echo __("These are the general settings for My Plugin.", "sheetscell");
+        echo __( 'Dont Have Google API KEY? - <a target="_blank" href="https://console.cloud.google.com/welcome?project=future-area-243117"> Google Console </a>', 'sheetscell' );
+        echo "<br/>";
+        echo __( 'Dont Have Google Sheets? - <a target="_blank" href="https://docs.google.com/spreadsheets/u/0/"> Google Sheets </a>', 'sheetscell' );
     }
 
     // Method to output for google key
@@ -137,9 +139,7 @@ class SheetsCell {
             $sheets_id = ltrim( $options['google_sheets_id'] );
         }
         if( isset($apiInputData) && !empty($apiInputData) && isset($sheets_id) && !empty($sheets_id) ){
-            //$API = 'AIzaSyBvT04d04wLj1QCwj3yS-ElJd-U3xEgk_Y';
             $API = "{$apiInputData}";
-            //$google_spreadsheet_ID = '1SyAeH3Hl7XMvPzE-BUXqW86BvGYPxgtm3VjIi4nx5bM';
             $google_spreadsheet_ID = "{$sheets_id}";
             $api_key  = esc_attr( $API );
             $location = $atts['cell_id'];
@@ -149,7 +149,7 @@ class SheetsCell {
             $wp_response = wp_remote_retrieve_response_code( $request );
             
             if ( 404 === $wp_response ||  403 === $wp_response ) {
-                echo "Sheets ID Error Genarated";
+                echo __( "Invalid Google Key or Spreadsheets Id", "sheetscell" );
             } else {
                 $cell_response = $get_cell->get( $cell_url );
                 $json_body     = json_decode( $cell_response['body'], true );
@@ -169,7 +169,7 @@ class SheetsCell {
                 }
             }
         } else{
-            echo "Looks Both Empty!";
+            echo __( "Empty Field! Make sure you have used valid google key and sheets id", "sheetscell" );
         }
 
     }
