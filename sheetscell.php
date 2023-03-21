@@ -20,8 +20,8 @@ class SheetsCell {
     //Construct function
     public function __construct() {
 
-        define('SheetsCell_PluginPath', plugin_dir_url(__FILE__));
-        define('SheetsCell_PluginVersion', '1.0.1');
+        define( 'SheetsCell_plugin_path', plugin_dir_url( __FILE__ ) );
+        define( 'SheetsCell_plugin_version', '1.0.1' );
 
         add_shortcode( 'sheets_cell', array( $this, 'sheetscell_shortcode_func' ) );
         add_action( 'admin_menu', array( $this, 'add_options_page' ) );
@@ -29,15 +29,15 @@ class SheetsCell {
         add_action( 'admin_enqueue_scripts', array( $this, 'sheetscell_admin_scripts' ) );
     }
 
-    public function sheetscell_admin_scripts(){
-        wp_enqueue_style('sheetscell-style', SheetsCell_PluginPath . 'assets/admin/css/style.css', array(), SheetsCell_PluginVersion);
+    public function sheetscell_admin_scripts() {
+        wp_enqueue_style( 'sheetscell-style', SheetsCell_plugin_path . 'assets/admin/css/style.css', array(), SheetsCell_plugin_version );
     }
 
     //Add the options page to the WordPress admin menu
     public function add_options_page() {
         add_options_page(
             'Sheets Cells Settings',
-            'Google SheetsCell',
+            'SheetsCell',
             'manage_options',
             'google-sheetscell',
             array( $this, 'sheetscell_option_callback' )
@@ -46,14 +46,14 @@ class SheetsCell {
 
     public function sheetscell_option_callback() {?>
         <div class="wrap">
-            <h2>SheetsCell Settings</h2>
+            <h2><?php echo __( 'SheetsCell Settings', 'sheetscell' ) ?></h2>
             <form method="post" action="options.php">
                 <?php
                     //Output the settings fields
                     settings_fields( 'sheetscell_settings_field_group' );
                     do_settings_sections( 'sheetscell_input_settings_section' );
                     submit_button( __( 'Save Settings', 'sheetscell' ), 'primary', 'sheets_save_bttn' );
-                ?>
+                    ?>
             </form>
         </div>
     <?php }
@@ -65,7 +65,7 @@ class SheetsCell {
             'sheetscell_option_settings',
             array( $this, 'sanitize_settings' )
         );
-        
+
         // Register a new settings section
         add_settings_section(
             'sheetscell_settings_section',
@@ -121,7 +121,6 @@ class SheetsCell {
         echo '<input type="text" class="sheetscell_input_field" name="sheetscell_option_settings[google_sheets_id]" value="' . $google_sheets_id . '" />';
     }
 
-
     /**
      * Function to genarate shortcode
      *
@@ -131,24 +130,22 @@ class SheetsCell {
     public function sheetscell_shortcode_func( $atts ) {
         $options = get_option( 'sheetscell_option_settings' );
         //Google API key
-        if( isset($options['google_api_key'])){
-            $apiInputData = ltrim( $options['google_api_key'] );
+        if ( isset( $options['google_api_key'] ) ) {
+            $google_api_data = ltrim( $options['google_api_key'] );
         }
         //Google Sheets ID
-        if( isset($options['google_sheets_id'])){
-            $sheets_id = ltrim( $options['google_sheets_id'] );
+        if ( isset( $options['google_sheets_id'] ) ) {
+            $sheets_id_data = ltrim( $options['google_sheets_id'] );
         }
-        if( isset($apiInputData) && !empty($apiInputData) && isset($sheets_id) && !empty($sheets_id) ){
-            $API = "{$apiInputData}";
-            $google_spreadsheet_ID = "{$sheets_id}";
-            $api_key  = esc_attr( $API );
-            $location = $atts['cell_id'];
-            $get_cell = new WP_Http();
-            $cell_url = "https://sheets.googleapis.com/v4/spreadsheets/$google_spreadsheet_ID/values/$location?&key=$api_key";
-            $request  = wp_remote_get( $cell_url );
+        if ( isset( $google_api_data ) && !empty( $google_api_data ) && isset( $sheets_id_data ) && !empty( $sheets_id_data ) ) {
+            $api_key     = esc_attr( $google_api_data );
+            $location    = $atts['cell_id'];
+            $get_cell    = new WP_Http();
+            $cell_url    = "https://sheets.googleapis.com/v4/spreadsheets/$sheets_id_data/values/$location?&key=$api_key";
+            $request     = wp_remote_get( $cell_url );
             $wp_response = wp_remote_retrieve_response_code( $request );
-            
-            if ( 404 === $wp_response ||  403 === $wp_response ) {
+
+            if ( 404 === $wp_response || 403 === $wp_response ) {
                 echo __( "Invalid Google Key or Spreadsheets Id", "sheetscell" );
             } else {
                 $cell_response = $get_cell->get( $cell_url );
@@ -168,8 +165,8 @@ class SheetsCell {
                     return $cell_value;
                 }
             }
-        } else{
-            echo __( "Empty Field! Make sure you have used valid google key and sheets id", "sheetscell" );
+        } else {
+            echo __( "Empty Field! Make sure you have used valid google key and sheets ID", "sheetscell" );
         }
 
     }
