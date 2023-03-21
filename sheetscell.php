@@ -121,6 +121,10 @@ class SheetsCell {
      */
     public function sheetscell_shortcode_callback( $atts ) {
         ob_start();
+        $atts = shortcode_atts( [
+            'cell_id' => 'Sheet1!A1',
+        ], $atts );
+
         $cell_value = '';
         $options    = get_option( 'sheetscell_option_settings' );
         //Google API key
