@@ -103,14 +103,14 @@ class SheetsCell {
     public function google_api_key_field() {
         $options = get_option( 'sheetscell_option_settings' );
         $google_key_input_value = isset( $options['google_api_key'] ) ? esc_attr( $options['google_api_key'] ) : '';
-        echo '<input type="text" class="sheetscell_input_field" name="sheetscell_option_settings[google_api_key]" value="' . $google_key_input_value . '" />';
+        echo '<input type="text" class="sc_input_field" name="sheetscell_option_settings[google_api_key]" value="' . $google_key_input_value . '" />';
     }
 
     //Spreadsheet ID Input
     public function spreadsheet_input_field() {
         $options = get_option( 'sheetscell_option_settings' );
         $google_sheets_id = isset($options['google_sheets_id']) ? esc_attr($options['google_sheets_id']) : '';
-        echo '<input type="text" class="sheetscell_input_field" name="sheetscell_option_settings[google_sheets_id]" value="' . $google_sheets_id . '" />';
+        echo '<input type="text" class="sc_input_field" name="sheetscell_option_settings[google_sheets_id]" value="' . $google_sheets_id . '" />';
     }
 
     /**
@@ -136,7 +136,7 @@ class SheetsCell {
             if ( 404 === $wp_response || 403 === $wp_response ) {
                 echo __( "Enter Vallied Google Key and Sheets ID", "sheetscell" );
             } else {
-                
+
                 $cell_response = wp_remote_get( $sheets_url );
                 $json_body     = json_decode( $cell_response['body'], true );
 
