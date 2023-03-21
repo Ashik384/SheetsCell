@@ -101,7 +101,7 @@ class SheetsCell {
 
     //Google Key Field
     public function google_api_key_field() {
-        $options                = get_option( 'sheetscell_option_settings' );
+        $options = get_option( 'sheetscell_option_settings' );
         $google_key_input_value = isset( $options['google_api_key'] ) ? esc_attr( $options['google_api_key'] ) : '';
         echo '<input type="text" class="sc_input_field" name="sheetscell_option_settings[google_api_key]" value="' . $google_key_input_value . '" />';
     }
