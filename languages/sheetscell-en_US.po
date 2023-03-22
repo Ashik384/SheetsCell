@@ -1,0 +1,86 @@
+msgid ""
+msgstr ""
+"Project-Id-Version: SheetsCell - Google Sheets SpecificCell data\n"
+"Report-Msgid-Bugs-To: \n"
+"POT-Creation-Date: 2023-03-22 15:38+0000\n"
+"PO-Revision-Date: 2023-03-22 15:38+0000\n"
+"Last-Translator: \n"
+"Language-Team: English (United States)\n"
+"Language: en_US\n"
+"Plural-Forms: nplurals=2; plural=n != 1;\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"X-Generator: Loco https://localise.biz/\n"
+"X-Loco-Version: 2.6.4; wp-6.1.1\n"
+"X-Domain: sheetscell"
+
+#: sheetscell.php:40
+msgid "SheetsCell Settings"
+msgstr ""
+
+#: sheetscell.php:50
+msgid "SheetsCell Settings Page"
+msgstr ""
+
+#: sheetscell.php:55
+msgid "Save Settings"
+msgstr ""
+
+#: sheetscell.php:72
+msgid "Add Your Information"
+msgstr ""
+
+#: sheetscell.php:80
+msgid "Google API Key"
+msgstr ""
+
+#: sheetscell.php:89
+msgid "Google Spreadsheets ID"
+msgstr ""
+
+#: sheetscell.php:97
+msgid ""
+"Dont Have Google API KEY? - <a target=\"_blank\" href=\"https://console."
+"cloud.google.com/welcome?project=future-area-243117\"> Google Console </a>"
+msgstr ""
+
+#: sheetscell.php:99
+msgid ""
+"Dont Have Google Sheets? - <a target=\"_blank\" href=\"https://docs.google."
+"com/spreadsheets/u/0/\"> Google Sheets </a>"
+msgstr ""
+
+#: sheetscell.php:143
+msgid "Enter Valid Google Key and Sheets ID"
+msgstr ""
+
+#: sheetscell.php:160
+msgid "Empty Cell!"
+msgstr ""
+
+#: sheetscell.php:166
+msgid ""
+"Empty Field! Please ensure that you have entered a valid Google key and "
+"Sheets ID"
+msgstr ""
+
+#. Name of the plugin
+msgid "SheetsCell - Google Sheets SpecificCell data"
+msgstr ""
+
+#. Description of the plugin
+msgid ""
+"A simple plugin that help you to Display Google Sheets Spacific Cell data in "
+"wordpress website using shortcodes. You can use the shortcode in pages and "
+"posts in your website."
+msgstr ""
+
+#. URI of the plugin
+#. Author URI of the plugin
+msgid "https://www.linkedin.com/in/ashikul-islam-ashik-a61479142/"
+msgstr ""
+
+#. Author of the plugin
+msgid "Ashik Ul Islam"
+msgstr ""

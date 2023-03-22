@@ -2,9 +2,9 @@
 
 /**
  * @wordpress-plugin
- * Plugin Name:       SheetsCell - Google Sheets SpecificCell data
+ * Plugin Name:       SheetsCell - Get Your Google Sheet Specific Cell data
  * Plugin URI:        https://www.linkedin.com/in/ashikul-islam-ashik-a61479142/
- * Description:       A simple plugin that help you to Display Google Sheets Spacific Cell data in wordpress website using shortcodes. You can use the shortcode in pages and posts in your website.
+ * Description:       A simple plugin that help you to Display Google Sheets Spacific Cell data in wordpress website using shortcodes. You can use the shortcode in pages and posts in your website. simply you will have to add google api key and google sheets ID.
  * Version:           1.0.1
  * Requires at least: 5.2
  * Requires PHP:      7.2
@@ -94,7 +94,7 @@ class SheetsCell {
     }
 
     public function sheetscell_settings_page_info() {
-        echo __( 'Dont Have Google API KEY? - <a target="_blank" href="https://console.cloud.google.com/welcome?project=future-area-243117"> Google Console </a>', 'sheetscell' );
+        echo __( 'Dont Have Google API KEY? - <a target="_blank" href="https://console.cloud.google.com/"> Google Console </a>', 'sheetscell' );
         echo "<br/>";
         echo __( 'Dont Have Google Sheets? - <a target="_blank" href="https://docs.google.com/spreadsheets/u/0/"> Google Sheets </a>', 'sheetscell' );
     }
