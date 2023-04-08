@@ -27,6 +27,7 @@ class SheetsCell {
         add_action( 'admin_menu', array( $this, 'add_options_page' ) );
         add_action( 'admin_menu', array( $this, 'sheetscell_register_settings' ) );
         add_action( 'admin_enqueue_scripts', array( $this, 'sheetscell_admin_scripts' ) );
+        add_action( 'admin_init', array( $this, 'my_custom_settings_save' ) );
     }
 
     //enqueue style
@@ -91,6 +92,15 @@ class SheetsCell {
             'sheetscell_input_settings_section',
             'sheetscell_settings_section'
         );
+        
+        // New Data Updated
+        add_settings_field(
+            'sheets_new_data_updated',
+            __( 'Sheets New Data Updated?', 'sheetscell' ),
+            array( $this, 'sheets_new_data_updated_input' ),
+            'sheetscell_input_settings_section',
+            'sheetscell_settings_section'
+        );
     }
 
     public function sheetscell_settings_page_info() {
@@ -112,6 +122,25 @@ class SheetsCell {
         $google_sheets_id = isset( $options['google_sheets_id'] ) ? esc_attr( $options['google_sheets_id'] ) : '';
         echo '<input type="text" class="sc_input_field" name="sheetscell_option_settings[google_sheets_id]" value="' . $google_sheets_id . '" />';
     }
+    
+    //Spreadsheet ID Input
+    public function sheets_new_data_updated_input($sheets_new_data_input) {
+        $options = get_option( 'sheetscell_option_settings' );
+        $sheets_new_data_input = isset( $options['sheets_new_data_updated'] ) ? esc_attr( $options['sheets_new_data_updated'] ) : '';
+        echo '<label for="sheetscell_option_settings[sheets_new_data_updated]">';
+        echo '<input type="checkbox" class="sheetscell_option_settings[sheets_new_data_updated]" name="sheetscell_option_settings[sheets_new_data_updated]" value="1" ' . checked( $sheets_new_data_input, 1, false ) . '/>';
+        echo 'Sheets New Data Updated ?';
+        echo '</label>';
+    }
+
+    function my_custom_settings_save() {
+        if ( isset( $_POST['sheets_new_data_updated'] ) && $_POST['sheets_new_data_updated'] == 1 ) {
+            update_option( 'sheets_new_data_updated', 1 );
+        } else {
+            update_option( 'sheets_new_data_updated', 0 );
+        }
+    }
+
 
     /**
      * Function to genarate shortcode
@@ -119,11 +148,15 @@ class SheetsCell {
      * @param [type] $atts
      * @return void
      */
-    public function sheetscell_shortcode_callback( $atts ) {
+    function sheetscell_shortcode_callback( $atts ) {
         ob_start();
         $atts = shortcode_atts( [
             'cell_id' => 'Sheet1!A1',
         ], $atts );
+        
+        $options = get_option( 'sheetscell_option_settings' );
+        $new_data_updated = isset( $options['sheets_new_data_updated'] ) ? $options['sheets_new_data_updated'] : '';
+        //var_dump($new_data_updated);
 
         $cell_value = '';
         $options    = get_option( 'sheetscell_option_settings' );
@@ -131,44 +164,59 @@ class SheetsCell {
         $google_api_data = isset( $options['google_api_key'] ) ? ltrim( $options['google_api_key'] ) : '';
         //Google Sheets ID
         $sheets_id_data = isset( $options['google_sheets_id'] ) ? ltrim( $options['google_sheets_id'] ) : '';
-
-        if ( isset( $google_api_data ) && !empty( $google_api_data ) && isset( $sheets_id_data ) && !empty( $sheets_id_data ) ) {
+    
+        if ( isset( $google_api_data ) && ! empty( $google_api_data ) && isset( $sheets_id_data ) && ! empty( $sheets_id_data ) ) {
             $api_key     = esc_attr( $google_api_data );
             $location    = $atts['cell_id'];
-            $sheets_url  = "https://sheets.googleapis.com/v4/spreadsheets/$sheets_id_data/values/$location?&key=$api_key";
-            $request     = wp_remote_get( $sheets_url );
-            $wp_response = wp_remote_retrieve_response_code( $request );
-
-            if ( 404 === $wp_response || 403 === $wp_response ) {
-                echo esc_html( __( "Enter Valid Google Key and Sheets ID", "sheetscell" ) );
-            } else {
-
-                $json_body = json_decode( $request['body'], true );
-                if ( isset( $json_body["error"] ) ) {
-                    $error = $json_body["error"];
+            $sheets_cell_transiet = 'sheetscell_' . md5( $sheets_id_data . '_' . $location );
+            $data        = get_transient( $sheets_cell_transiet );
+    
+            if ( false === $data ) {
+                $sheets_url  = "https://sheets.googleapis.com/v4/spreadsheets/$sheets_id_data/values/$location?&key=$api_key";
+                $request     = wp_remote_get( $sheets_url );
+                $wp_response = wp_remote_retrieve_response_code( $request );
+    
+                if ( 404 === $wp_response || 403 === $wp_response ) {
+                    echo esc_html( __( "Enter Valid Google Key and Sheets ID", "sheetscell" ) );
                 } else {
-                    // No error occurred
-                    // ...
-                }
-
-                if ( isset( $error["status"] ) && $error["status"] == "INVALID_ARGUMENT" ) {
-                    echo $error["message"];
-                } else {
-                    if ( isset( $json_body["values"][0][0] ) ) {
-                        $cell_value = $json_body["values"][0][0];
+                    $json_body = json_decode( $request['body'], true );
+                    if ( isset( $json_body["error"] ) ) {
+                        $error = $json_body["error"];
                     } else {
-                        echo __( 'Empty Cell!', 'sheetscell' );
+                        // No error occurred
+                        // ...
                     }
-
+    
+                    if ( isset( $error["status"] ) && $error["status"] == "INVALID_ARGUMENT" ) {
+                        echo $error["message"];
+                    } else {
+                        if ( isset( $json_body["values"][0][0] ) ) {
+                            $cell_value = $json_body["values"][0][0];
+                        } else {
+                            echo __( 'Empty Cell!', 'sheetscell' );
+                        }
+    
+                    }
+                    // Store the data in transient for 30 seconds
+                    if( $new_data_updated === 1 ){
+                        set_transient( $sheets_cell_transiet, $cell_value, $new_data_updated ); // Transient will expire after 30 seconds
+                        ++$new_data_updated;
+                    }else{
+                        set_transient( $sheets_cell_transiet, $cell_value, 600 );
+                    }
+                    
                 }
+            } else {
+                $cell_value = $data;
             }
         } else {
             echo __( "Empty Field! Please ensure that you have entered a valid Google key and Sheets ID", "sheetscell" );
         }
-
+    
         $cell_value .= ob_get_clean();
         return $cell_value;
     }
+    
 }
 
 $SheetsCell = new SheetsCell();
