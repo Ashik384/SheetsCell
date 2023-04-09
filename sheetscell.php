@@ -27,7 +27,6 @@ class SheetsCell {
         add_action( 'admin_menu', array( $this, 'add_options_page' ) );
         add_action( 'admin_menu', array( $this, 'sheetscell_register_settings' ) );
         add_action( 'admin_enqueue_scripts', array( $this, 'sheetscell_admin_scripts' ) );
-        add_action( 'admin_init', array( $this, 'my_custom_settings_save' ) );
     }
 
     //enqueue style
@@ -95,8 +94,8 @@ class SheetsCell {
         
         // New Data Updated
         add_settings_field(
-            'sheets_new_data_updated',
-            __( 'Sheets New Data Updated?', 'sheetscell' ),
+            'sheets_caching_time',
+            __( 'Set caching time', 'sheetscell' ),
             array( $this, 'sheets_new_data_updated_input' ),
             'sheetscell_input_settings_section',
             'sheetscell_settings_section'
@@ -124,23 +123,12 @@ class SheetsCell {
     }
     
     //Spreadsheet ID Input
-    public function sheets_new_data_updated_input($sheets_new_data_input) {
+    public function sheets_new_data_updated_input() {
         $options = get_option( 'sheetscell_option_settings' );
-        $sheets_new_data_input = isset( $options['sheets_new_data_updated'] ) ? esc_attr( $options['sheets_new_data_updated'] ) : '';
-        echo '<label for="sheetscell_option_settings[sheets_new_data_updated]">';
-        echo '<input type="checkbox" class="sheetscell_option_settings[sheets_new_data_updated]" name="sheetscell_option_settings[sheets_new_data_updated]" value="1" ' . checked( $sheets_new_data_input, 1, false ) . '/>';
-        echo 'Sheets New Data Updated ?';
-        echo '</label>';
+        $sheets_caching_time = isset( $options['sheets_caching_time'] ) ? esc_attr( $options['sheets_caching_time'] ) : '';
+        echo '<input type="text" class="sc_input_field" name="sheetscell_option_settings[sheets_caching_time]" value="' . $sheets_caching_time . '" />';
+        echo "<p style='color:red'> Add Cach Expired time in second - 3600 one hour <p/>";
     }
-
-    function my_custom_settings_save() {
-        if ( isset( $_POST['sheets_new_data_updated'] ) && $_POST['sheets_new_data_updated'] == 1 ) {
-            update_option( 'sheets_new_data_updated', 1 );
-        } else {
-            update_option( 'sheets_new_data_updated', 0 );
-        }
-    }
-
 
     /**
      * Function to genarate shortcode
@@ -154,23 +142,28 @@ class SheetsCell {
             'cell_id' => 'Sheet1!A1',
         ], $atts );
         
-        $options = get_option( 'sheetscell_option_settings' );
-        $new_data_updated = isset( $options['sheets_new_data_updated'] ) ? $options['sheets_new_data_updated'] : '';
-        //var_dump($new_data_updated);
-
+        
         $cell_value = '';
         $options    = get_option( 'sheetscell_option_settings' );
         //Google API key
         $google_api_data = isset( $options['google_api_key'] ) ? ltrim( $options['google_api_key'] ) : '';
         //Google Sheets ID
         $sheets_id_data = isset( $options['google_sheets_id'] ) ? ltrim( $options['google_sheets_id'] ) : '';
-    
+        // Transiet time
+        $catch_time_set = isset( $options['sheets_caching_time'] ) ? $options['sheets_caching_time'] : '';
+        if($catch_time_set){
+            $catch_time_expired = intval($catch_time_set);
+        }
+        
         if ( isset( $google_api_data ) && ! empty( $google_api_data ) && isset( $sheets_id_data ) && ! empty( $sheets_id_data ) ) {
             $api_key     = esc_attr( $google_api_data );
             $location    = $atts['cell_id'];
-            $sheets_cell_transiet = 'sheetscell_' . md5( $sheets_id_data . '_' . $location );
+            
+            $sheets_cell_transiet = 'sheetscell_trans_' . md5( $sheets_id_data . '_' . $location );
             $data        = get_transient( $sheets_cell_transiet );
-    
+
+            
+
             if ( false === $data ) {
                 $sheets_url  = "https://sheets.googleapis.com/v4/spreadsheets/$sheets_id_data/values/$location?&key=$api_key";
                 $request     = wp_remote_get( $sheets_url );
@@ -194,17 +187,10 @@ class SheetsCell {
                             $cell_value = $json_body["values"][0][0];
                         } else {
                             echo __( 'Empty Cell!', 'sheetscell' );
-                        }
-    
+                        }    
                     }
-                    // Store the data in transient for 30 seconds
-                    if( $new_data_updated === 1 ){
-                        set_transient( $sheets_cell_transiet, $cell_value, $new_data_updated ); // Transient will expire after 30 seconds
-                        ++$new_data_updated;
-                    }else{
-                        set_transient( $sheets_cell_transiet, $cell_value, 600 );
-                    }
-                    
+                    // Store the data in transient 
+                    set_transient( $sheets_cell_transiet, $cell_value, $catch_time_expired );
                 }
             } else {
                 $cell_value = $data;
