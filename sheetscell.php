@@ -25,8 +25,9 @@ class SheetsCell {
 
         add_shortcode( 'sheets_cell', array( $this, 'sheetscell_shortcode_callback' ) );
         add_action( 'admin_menu', array( $this, 'add_options_page' ) );
-        add_action( 'admin_menu', array( $this, 'sheetscell_register_settings' ) );
+        //add_action( 'admin_menu', array( $this, 'sheetscell_register_settings' ) );
         add_action( 'admin_enqueue_scripts', array( $this, 'sheetscell_admin_scripts' ) );
+        add_action( 'admin_init', array( $this, 'sheetscell_option_save' ) );
     }
 
     //enqueue style
@@ -45,89 +46,75 @@ class SheetsCell {
         );
     }
 
-    public function sheetscell_option_callback() {?>
+    function sheetscell_get_options() {
+        $options = get_option( 'sheetscell_option_settings' );
+        if ( empty( $options ) ) {
+            $options = array( 'google_api_key' => '', 'google_sheets_id' => '', 'sheets_caching_time' => '' );
+        }
+        return $options;
+    }
+
+    public function sheetscell_option_callback() {
+        $get_option_data = $this->sheetscell_get_options();
+        // Access the returned options data
+        $google_api_key      = esc_attr( $get_option_data['google_api_key'] );
+        $google_sheets_id    = esc_attr( $get_option_data['google_sheets_id'] );
+        $sheets_caching_time = esc_attr( $get_option_data['sheets_caching_time'] );
+
+        ?>
         <div class="wrap">
             <h2><?php echo esc_html( __( 'SheetsCell Settings Page', 'sheetscell' ) ); ?></h2>
-            <form method="post" action="options.php">
-                <?php
-                    settings_fields( 'sheetscell_settings_field_group' );
-                    do_settings_sections( 'sheetscell_input_settings_section' );
-                    submit_button( __( 'Save Settings', 'sheetscell' ), 'primary', 'sheets_save_bttn' );
-                ?>
+
+            <form method="post" action="" id="sheetscell_option_form">
+            <input type="hidden" name="action" id="" value="sheetscell_option_save">
+
+            <h2><?php echo esc_html( __( 'Add Your Information', 'sheetscell' ) ); ?></h2>
+
+            Dont Have Google API KEY? - <a target="_blank" href="https://console.cloud.google.com/"> Google Console </a><br>Dont Have Google Sheets? - <a target="_blank" href="https://docs.google.com/spreadsheets/u/0/"> Google Sheets </a>
+            <table class="form-table" role="presentation">
+                <tbody>
+                    <tr>
+                        <th scope="row">Google API Key</th>
+                        <td><input type="text" class="sc_input_field" name="sheetscell_option_settings[google_api_key]" value="<?php echo $google_api_key; ?>"></td>
+                    </tr>
+                    <tr>
+                        <th scope="row">Google Spreadsheets ID</th>
+                        <td><input type="text" class="sc_input_field" name="sheetscell_option_settings[google_sheets_id]" value="<?php echo $google_sheets_id; ?>"></td>
+                    </tr>
+                    <tr>
+                        <th scope="row">Set caching time</th>
+                        <td>
+                        <input type="text" class="sc_input_field" name="sheetscell_option_settings[sheets_caching_time]" value="<?php echo $sheets_caching_time; ?>">
+                        <p style="color:red"> After Updated google sheet make make a save to show instant data or it will show when caching time expired!  </p>
+                        </td>
+                    </tr>
+                </tbody>
+            </table>
+            <p class="submit"><input type="submit" name="sheets_save_bttn" id="sheets_save_bttn" class="button button-primary" value="Save Settings"></p>
             </form>
         </div>
     <?php }
 
-    public function sheetscell_register_settings() {
-        // Register the plugin's settings
-        register_setting(
-            'sheetscell_settings_field_group',
-            'sheetscell_option_settings',
-            array( $this, 'sanitize_settings' )
-        );
+    // Function to update data and clear transient catch time
+    function sheetscell_option_save() {
 
-        // Register a new settings section
-        add_settings_section(
-            'sheetscell_settings_section',
-            __( 'Add Your Information', 'sheetscell' ),
-            array( $this, 'sheetscell_settings_page_info' ),
-            'sheetscell_input_settings_section'
-        );
+        if ( isset( $_POST['action'] ) && $_POST['action'] == 'sheetscell_option_save' ) {
 
-        // Register google key field
-        add_settings_field(
-            'google_api_key',
-            __( 'Google API Key', 'sheetscell' ),
-            array( $this, 'google_api_key_field' ),
-            'sheetscell_input_settings_section',
-            'sheetscell_settings_section'
-        );
+            $sheetscell_options = $_POST['sheetscell_option_settings'];
+            $sheetscell_options = array_map( 'sanitize_text_field', $sheetscell_options );
+            $update             = update_option( 'sheetscell_option_settings', $sheetscell_options );
+            wp_redirect( admin_url( '/options-general.php?page=google-sheetscell' ) );
+            exit;
+        }
 
-        // Register Sheets Id
-        add_settings_field(
-            'google_sheets_id',
-            __( 'Google Spreadsheets ID', 'sheetscell' ),
-            array( $this, 'spreadsheet_input_field' ),
-            'sheetscell_input_settings_section',
-            'sheetscell_settings_section'
-        );
-        
-        // New Data Updated
-        add_settings_field(
-            'sheets_caching_time',
-            __( 'Set caching time', 'sheetscell' ),
-            array( $this, 'sheets_new_data_updated_input' ),
-            'sheetscell_input_settings_section',
-            'sheetscell_settings_section'
-        );
-    }
+        global $wpdb;
+        // Define the table name
+        $table_name = $wpdb->prefix . 'options';
+        // Define the SQL query
+        $query = "DELETE FROM $table_name WHERE option_name LIKE '%sheetscell_trans%'";
+        // Execute the query
+        $result = $wpdb->query( $query );
 
-    public function sheetscell_settings_page_info() {
-        echo __( 'Dont Have Google API KEY? - <a target="_blank" href="https://console.cloud.google.com/"> Google Console </a>', 'sheetscell' );
-        echo "<br/>";
-        echo __( 'Dont Have Google Sheets? - <a target="_blank" href="https://docs.google.com/spreadsheets/u/0/"> Google Sheets </a>', 'sheetscell' );
-    }
-
-    //Google Key Field
-    public function google_api_key_field() {
-        $options = get_option( 'sheetscell_option_settings' );
-        $google_key_input_value = isset( $options['google_api_key'] ) ? esc_attr( $options['google_api_key'] ) : '';
-        echo '<input type="text" class="sc_input_field" name="sheetscell_option_settings[google_api_key]" value="' . $google_key_input_value . '" />';
-    }
-
-    //Spreadsheet ID Input
-    public function spreadsheet_input_field() {
-        $options          = get_option( 'sheetscell_option_settings' );
-        $google_sheets_id = isset( $options['google_sheets_id'] ) ? esc_attr( $options['google_sheets_id'] ) : '';
-        echo '<input type="text" class="sc_input_field" name="sheetscell_option_settings[google_sheets_id]" value="' . $google_sheets_id . '" />';
-    }
-    
-    //Spreadsheet ID Input
-    public function sheets_new_data_updated_input() {
-        $options = get_option( 'sheetscell_option_settings' );
-        $sheets_caching_time = isset( $options['sheets_caching_time'] ) ? esc_attr( $options['sheets_caching_time'] ) : '';
-        echo '<input type="text" class="sc_input_field" name="sheetscell_option_settings[sheets_caching_time]" value="' . $sheets_caching_time . '" />';
-        echo "<p style='color:red'> Add Cach Expired time in second - 3600 one hour <p/>";
     }
 
     /**
@@ -141,34 +128,35 @@ class SheetsCell {
         $atts = shortcode_atts( [
             'cell_id' => 'Sheet1!A1',
         ], $atts );
-        
-        
-        $cell_value = '';
-        $options    = get_option( 'sheetscell_option_settings' );
-        //Google API key
-        $google_api_data = isset( $options['google_api_key'] ) ? ltrim( $options['google_api_key'] ) : '';
-        //Google Sheets ID
-        $sheets_id_data = isset( $options['google_sheets_id'] ) ? ltrim( $options['google_sheets_id'] ) : '';
-        // Transiet time
-        $catch_time_set = isset( $options['sheets_caching_time'] ) ? $options['sheets_caching_time'] : '';
-        if($catch_time_set){
-            $catch_time_expired = intval($catch_time_set);
-        }
-        
-        if ( isset( $google_api_data ) && ! empty( $google_api_data ) && isset( $sheets_id_data ) && ! empty( $sheets_id_data ) ) {
-            $api_key     = esc_attr( $google_api_data );
-            $location    = $atts['cell_id'];
-            
-            $sheets_cell_transiet = 'sheetscell_trans_' . md5( $sheets_id_data . '_' . $location );
-            $data        = get_transient( $sheets_cell_transiet );
 
-            
+        $cell_value = '';
+
+        $get_option_data = $this->sheetscell_get_options();
+        // //Google API key
+        $google_api_data = isset( $get_option_data['google_api_key'] ) ? ltrim( $get_option_data['google_api_key'] ) : '';
+        // //Google Sheets ID
+        $sheets_id_data = isset( $get_option_data['google_sheets_id'] ) ? ltrim( $get_option_data['google_sheets_id'] ) : '';
+        // // Transiet time
+        $catch_time_set = isset( $get_option_data['sheets_caching_time'] ) ? $get_option_data['sheets_caching_time'] : '';
+
+        if ( $catch_time_set ) {
+            $catch_time_expired        = floatval( $catch_time_set );
+            $catch_time_expired_second = $catch_time_expired * 60 * 60;
+            var_dump($catch_time_expired_second);
+        }
+
+        if ( isset( $google_api_data ) && !empty( $google_api_data ) && isset( $sheets_id_data ) && !empty( $sheets_id_data ) ) {
+            $api_key  = esc_attr( $google_api_data );
+            $location = $atts['cell_id'];
+
+            $sheets_cell_transiet = 'sheetscell_trans_' . md5( $sheets_id_data . '_' . $location );
+            $data = get_transient( $sheets_cell_transiet );
 
             if ( false === $data ) {
                 $sheets_url  = "https://sheets.googleapis.com/v4/spreadsheets/$sheets_id_data/values/$location?&key=$api_key";
                 $request     = wp_remote_get( $sheets_url );
                 $wp_response = wp_remote_retrieve_response_code( $request );
-    
+
                 if ( 404 === $wp_response || 403 === $wp_response ) {
                     echo esc_html( __( "Enter Valid Google Key and Sheets ID", "sheetscell" ) );
                 } else {
@@ -179,7 +167,7 @@ class SheetsCell {
                         // No error occurred
                         // ...
                     }
-    
+
                     if ( isset( $error["status"] ) && $error["status"] == "INVALID_ARGUMENT" ) {
                         echo $error["message"];
                     } else {
@@ -187,10 +175,10 @@ class SheetsCell {
                             $cell_value = $json_body["values"][0][0];
                         } else {
                             echo __( 'Empty Cell!', 'sheetscell' );
-                        }    
+                        }
                     }
-                    // Store the data in transient 
-                    set_transient( $sheets_cell_transiet, $cell_value, $catch_time_expired );
+                    // Store the data in transient
+                    set_transient( $sheets_cell_transiet, $cell_value, 360000 );
                 }
             } else {
                 $cell_value = $data;
@@ -198,11 +186,11 @@ class SheetsCell {
         } else {
             echo __( "Empty Field! Please ensure that you have entered a valid Google key and Sheets ID", "sheetscell" );
         }
-    
+
         $cell_value .= ob_get_clean();
         return $cell_value;
     }
-    
+
 }
 
 $SheetsCell = new SheetsCell();
