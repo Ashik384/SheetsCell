@@ -27,7 +27,7 @@ class SheetsCell {
         add_action( 'admin_menu', array( $this, 'add_options_page' ) );
         //add_action( 'admin_menu', array( $this, 'sheetscell_register_settings' ) );
         add_action( 'admin_enqueue_scripts', array( $this, 'sheetscell_admin_scripts' ) );
-        add_action( 'admin_init', array( $this, 'sheetscell_option_save' ) );
+        add_action( 'admin_init', array( $this, 'sheetscell_option_save_func' ) );
     }
 
     //enqueue style
@@ -108,7 +108,7 @@ class SheetsCell {
     <?php }
 
     // Function to update data and clear transient catch time
-    function sheetscell_option_save() {
+    function sheetscell_option_save_func() {
 
         if ( isset( $_POST['action'] ) && $_POST['action'] == 'sheetscell_option_save' ) {
 
@@ -142,8 +142,10 @@ class SheetsCell {
             'name'    => '',
         ], $atts );
 
+        $location = sanitize_text_field( $atts['cell_id'] );
+        $name    = sanitize_text_field( $atts['name'] );
+
         $cell_value      = '';
-        $name            = $atts['name'];
         $get_option_data = $this->sheetscell_get_options();
         // //Google API key
         $google_api_data = isset( $get_option_data['google_api_key'] ) ? ltrim( $get_option_data['google_api_key'] ) : '';
@@ -158,8 +160,6 @@ class SheetsCell {
 
         if ( isset( $google_api_data ) && !empty( $google_api_data ) && isset( $sheets_id_data ) && !empty( $sheets_id_data ) ) {
             $api_key  = esc_attr( $google_api_data );
-            $location = $atts['cell_id'];
-
             $sheets_cell_transiet = 'sheetscell_trans_' . md5( $sheets_id_data . '_' . $location );
             $data                 = get_transient( $sheets_cell_transiet );
 
@@ -178,8 +178,7 @@ class SheetsCell {
                         // No error occurred
                         // ...
                     }
-
-                    if ( isset( $error["status"] ) && $error["status"] == "INVALID_ARGUMENT" ) {
+                    if ( isset( $error["status"] ) && $error["status"] === "INVALID_ARGUMENT" ) {
                         echo $error["message"];
                     } else {
                         if ( isset( $json_body["values"][0][0] ) ) {
