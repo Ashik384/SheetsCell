@@ -85,7 +85,7 @@ class SheetsCell {
                         <th scope="row">Set caching time</th>
                         <td>
                         <input type="text" class="sc_input_field" name="sheetscell_option_settings[sheets_caching_time]" value="<?php echo $sheets_caching_time; ?>">
-                        <p style="color:red"> After Updated google sheet make make a save to show instant data or it will show when caching time expired!  </p>
+                        <p style="color:red"> <?php echo esc_html( __( 'After Updated google sheet make make a save to show instant data or it will show when caching time expired!', 'sheetscell' ) ) ?>  </p>
                         </td>
                     </tr>
                 </tbody>
