@@ -49,7 +49,7 @@ class SheetsCell {
     function sheetscell_get_options() {
         $options = get_option( 'sheetscell_option_settings' );
         if ( empty( $options ) ) {
-            $options = array( 'google_api_key' => '', 'google_sheets_id' => '', 'sheets_caching_time' => '' );
+            $options = array( 'google_api_key' => '', 'google_sheets_id' => '', 'sheets_caching_time' => '43200' );
         }
         return $options;
     }
@@ -64,30 +64,42 @@ class SheetsCell {
         ?>
         <div class="wrap">
             <h2><?php echo esc_html( __( 'SheetsCell Settings Page', 'sheetscell' ) ); ?></h2>
-
             <form method="post" action="" id="sheetscell_option_form">
             <input type="hidden" name="action" id="" value="sheetscell_option_save">
-
-            <h2><?php echo esc_html( __( 'Add Your Information', 'sheetscell' ) ); ?></h2>
-
-            Dont Have Google API KEY? - <a target="_blank" href="https://console.cloud.google.com/"> Google Console </a><br>Dont Have Google Sheets? - <a target="_blank" href="https://docs.google.com/spreadsheets/u/0/"> Google Sheets </a>
+            <h2><?php echo esc_html( __( 'Add sheetscell info', 'sheetscell' ) ); ?></h2>
+            <?php echo esc_html( __( 'Dont Have Google API KEY?', 'sheetscell' ) ); ?> -
+            <a target="_blank" href="https://console.cloud.google.com/"> <?php echo esc_html( "Google Console" ) ?> </a>
+            <br>
+            <?php echo esc_html( __( 'Dont Have Google Sheets?', 'sheetscell' ) ); ?> -
+            <a target="_blank" href="https://docs.google.com/spreadsheets/u/0/"> <?php echo esc_html( "Google Sheets" ) ?></a>
             <table class="form-table" role="presentation">
                 <tbody>
                     <tr>
-                        <th scope="row">Google API Key</th>
+                        <th scope="row"><?php echo esc_html( __( 'Google API Key', 'sheetscell' ) ); ?></th>
                         <td><input type="text" class="sc_input_field" name="sheetscell_option_settings[google_api_key]" value="<?php echo $google_api_key; ?>"></td>
                     </tr>
                     <tr>
-                        <th scope="row">Google Spreadsheets ID</th>
+                        <th scope="row"><?php echo esc_html( __( 'Google Spreadsheets ID', 'sheetscell' ) ); ?></th>
                         <td><input type="text" class="sc_input_field" name="sheetscell_option_settings[google_sheets_id]" value="<?php echo $google_sheets_id; ?>"></td>
                     </tr>
                     <tr>
-                        <th scope="row">Set caching time</th>
+                        <th scope="row"><?php echo esc_html( __( 'Set caching time', 'sheetscell' ) ); ?></th>
                         <td>
                         <input type="text" class="sc_input_field" name="sheetscell_option_settings[sheets_caching_time]" value="<?php echo $sheets_caching_time; ?>">
-                        <p style="color:red"> <?php echo esc_html( __( 'After Updated google sheet make make a save to show instant data or it will show when caching time expired!', 'sheetscell' ) ) ?>  </p>
+                        <p><?php echo esc_html('43200s = 6hrs'); ?></p>
+                        <p style="color:red"> <?php echo esc_html( __( 'When google sheets data updated you can save settings, so that it will clear cache', 'sheetscell' ) ) ?>  </p>
                         </td>
                     </tr>
+
+                    <tr>
+                        <td scope="row"> <?php echo esc_html( __('Shortcode view', 'sheetscell' ) ); ?> - </td>
+                        <td style="font-weight: 600;">
+                            [sheets_cell name="price-data" cell_id="Sheet1!C1"]
+                            <p>name: <?php echo esc_html( __('Add name for the shortcode', 'sheetscell' ) ); ?> </p>
+                            <p>cell_id: <?php echo esc_html( __('Add sheets ID', 'sheetscell' ) ); ?> </p>
+                        </td>
+                    </tr>
+
                 </tbody>
             </table>
             <p class="submit"><input type="submit" name="sheets_save_bttn" id="sheets_save_bttn" class="button button-primary" value="Save Settings"></p>
@@ -127,10 +139,11 @@ class SheetsCell {
         ob_start();
         $atts = shortcode_atts( [
             'cell_id' => 'Sheet1!A1',
+            'name'    => '',
         ], $atts );
 
-        $cell_value = '';
-
+        $cell_value      = '';
+        $name            = $atts['name'];
         $get_option_data = $this->sheetscell_get_options();
         // //Google API key
         $google_api_data = isset( $get_option_data['google_api_key'] ) ? ltrim( $get_option_data['google_api_key'] ) : '';
@@ -140,9 +153,7 @@ class SheetsCell {
         $catch_time_set = isset( $get_option_data['sheets_caching_time'] ) ? $get_option_data['sheets_caching_time'] : '';
 
         if ( $catch_time_set ) {
-            $catch_time_expired        = floatval( $catch_time_set );
-            $catch_time_expired_second = $catch_time_expired * 60 * 60;
-            var_dump($catch_time_expired_second);
+            $catch_time_expired = intval( $catch_time_set );
         }
 
         if ( isset( $google_api_data ) && !empty( $google_api_data ) && isset( $sheets_id_data ) && !empty( $sheets_id_data ) ) {
@@ -150,7 +161,7 @@ class SheetsCell {
             $location = $atts['cell_id'];
 
             $sheets_cell_transiet = 'sheetscell_trans_' . md5( $sheets_id_data . '_' . $location );
-            $data = get_transient( $sheets_cell_transiet );
+            $data                 = get_transient( $sheets_cell_transiet );
 
             if ( false === $data ) {
                 $sheets_url  = "https://sheets.googleapis.com/v4/spreadsheets/$sheets_id_data/values/$location?&key=$api_key";
@@ -178,7 +189,7 @@ class SheetsCell {
                         }
                     }
                     // Store the data in transient
-                    set_transient( $sheets_cell_transiet, $cell_value, 360000 );
+                    set_transient( $sheets_cell_transiet, $cell_value, $catch_time_expired );
                 }
             } else {
                 $cell_value = $data;
@@ -188,7 +199,8 @@ class SheetsCell {
         }
 
         $cell_value .= ob_get_clean();
-        return $cell_value;
+        $data_final = "<span class='sheetscell {$name}'>{$cell_value}</span>";
+        return $data_final;
     }
 
 }
