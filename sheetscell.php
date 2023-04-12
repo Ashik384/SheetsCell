@@ -25,7 +25,6 @@ class SheetsCell {
 
         add_shortcode( 'sheets_cell', array( $this, 'sheetscell_shortcode_callback' ) );
         add_action( 'admin_menu', array( $this, 'add_options_page' ) );
-        //add_action( 'admin_menu', array( $this, 'sheetscell_register_settings' ) );
         add_action( 'admin_enqueue_scripts', array( $this, 'sheetscell_admin_scripts' ) );
         add_action( 'admin_init', array( $this, 'sheetscell_option_save_func' ) );
     }
@@ -96,7 +95,7 @@ class SheetsCell {
                         <td style="font-weight: 600;">
                             [sheets_cell name="price-data" cell_id="Sheet1!C1"]
                             <p>name: <?php echo esc_html( __('Add name for the shortcode', 'sheetscell' ) ); ?> </p>
-                            <p>cell_id: <?php echo esc_html( __('Add sheets ID', 'sheetscell' ) ); ?> </p>
+                            <p>cell_id: <?php echo esc_html( __('Add Cell ID(Sheet1!C1)', 'sheetscell' ) ); ?> </p>
                         </td>
                     </tr>
 
