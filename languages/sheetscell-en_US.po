@@ -3,10 +3,10 @@ msgstr ""
 "Project-Id-Version: SheetsCell - Google Sheets SpecificCell data\n"
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 2023-03-22 15:38+0000\n"
-"PO-Revision-Date: 2023-03-22 15:38+0000\n"
+"PO-Revision-Date: 2023-04-12 15:42+0000\n"
 "Last-Translator: \n"
 "Language-Team: English (United States)\n"
-"Language: en_US\n"
+"Language: en-US\n"
 "Plural-Forms: nplurals=2; plural=n != 1;\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
@@ -15,65 +15,58 @@ msgstr ""
 "X-Loco-Version: 2.6.4; wp-6.1.1\n"
 "X-Domain: sheetscell"
 
-#: sheetscell.php:40
-msgid "SheetsCell Settings"
-msgstr ""
-
-#: sheetscell.php:50
-msgid "SheetsCell Settings Page"
-msgstr ""
-
-#: sheetscell.php:55
-msgid "Save Settings"
-msgstr ""
-
-#: sheetscell.php:72
-msgid "Add Your Information"
-msgstr ""
-
-#: sheetscell.php:80
-msgid "Google API Key"
-msgstr ""
-
-#: sheetscell.php:89
-msgid "Google Spreadsheets ID"
-msgstr ""
-
-#: sheetscell.php:97
+#. Description of the plugin
 msgid ""
-"Dont Have Google API KEY? - <a target=\"_blank\" href=\"https://console."
-"cloud.google.com/welcome?project=future-area-243117\"> Google Console </a>"
+"A simple plugin that help you to Display Google Sheets Spacific Cell data in "
+"wordpress website using shortcodes. You can use the shortcode in pages and "
+"posts in your website. simply you will have to add google api key and google "
+"sheets ID."
+msgstr ""
+
+#: sheetscell.php:98
+msgid "Add name for the shortcode"
 msgstr ""
 
 #: sheetscell.php:99
-msgid ""
-"Dont Have Google Sheets? - <a target=\"_blank\" href=\"https://docs.google."
-"com/spreadsheets/u/0/\"> Google Sheets </a>"
+msgid "Add sheets ID"
 msgstr ""
 
-#: sheetscell.php:143
-msgid "Enter Valid Google Key and Sheets ID"
+#: sheetscell.php:69
+msgid "Add sheetscell info"
 msgstr ""
 
-#: sheetscell.php:160
+#. Author of the plugin
+msgid "Ashik Ul Islam"
+msgstr ""
+
+#: sheetscell.php:70
+msgid "Dont Have Google API KEY?"
+msgstr ""
+
+#: sheetscell.php:73
+msgid "Dont Have Google Sheets?"
+msgstr ""
+
+#: sheetscell.php:187
 msgid "Empty Cell!"
 msgstr ""
 
-#: sheetscell.php:166
+#: sheetscell.php:197
 msgid ""
 "Empty Field! Please ensure that you have entered a valid Google key and "
 "Sheets ID"
 msgstr ""
 
-#. Name of the plugin
-msgid "SheetsCell - Google Sheets SpecificCell data"
+#: sheetscell.php:172
+msgid "Enter Valid Google Key and Sheets ID"
 msgstr ""
 
-#. Description of the plugin
-msgid ""
-"A simple plugin that help you to Display Google Sheets Spacific Cell data in "
-"wordpress website using shortcodes. You can use the shortcode in pages and "
-"posts in your website."
+#: sheetscell.php:78
+msgid "Google API Key"
+msgstr ""
+
+#: sheetscell.php:82
+msgid "Google Spreadsheets ID"
 msgstr ""
 
 #. URI of the plugin
@@ -81,6 +74,28 @@ msgstr ""
 msgid "https://www.linkedin.com/in/ashikul-islam-ashik-a61479142/"
 msgstr ""
 
-#. Author of the plugin
-msgid "Ashik Ul Islam"
+#: sheetscell.php:86
+msgid "Set caching time"
+msgstr ""
+
+#. Name of the plugin
+msgid "SheetsCell - Get Your Google Sheet Specific Cell data"
+msgstr ""
+
+#: sheetscell.php:41
+msgid "SheetsCell Settings"
+msgstr ""
+
+#: sheetscell.php:66
+msgid "SheetsCell Settings Page"
+msgstr ""
+
+#: sheetscell.php:95
+msgid "Shortcode view"
+msgstr ""
+
+#: sheetscell.php:90
+msgid ""
+"When google sheets data updated you can save settings, so that it will clear "
+"cache"
 msgstr ""
