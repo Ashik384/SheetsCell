@@ -64,6 +64,8 @@ Right click on the cell, Scroll down hover over more view more cell actions, cli
 12. Get Sheets ID 
 13. Get Sheets cell ID
 
+== Changelog ==
+
 = 1.0.1 =
 
 Initial release
