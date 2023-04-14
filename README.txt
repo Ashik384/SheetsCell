@@ -25,7 +25,7 @@ SheetsCell is a lightweight and easy-to-use plugin that lets you display specifi
 * [sheets_cell name="" cell_id=""]
 * cell_id: Google Spreedsheet cell id ( Sheet1!A1 ) = Sheet1 = 'set your sheet name' - A1 = 'cell id'
 * name: Add name for the shortcode ( price )
-
+ 
 = Installation =
 How to install SheetsCell
 1. Upload the sheetscell folder to the /wp-content/plugins/ directory or Navigate to the 'Add New' in the plugins dashboard
