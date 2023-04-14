@@ -16,11 +16,17 @@ SheetsCell is a lightweight and easy-to-use plugin that lets you display specifi
 
 == Features ==
 
-Display specific cell data from a Google Sheet on your WordPress website using shortcodes
-Easy-to-use plugin settings page to add your Google API key and Google Sheets ID
-Lightweight and optimized for performance
+* Display specific cell data from a Google Sheet on your WordPress website using shortcodes
+* Easy-to-use plugin settings page to add your Google API key and Google Sheets ID
+* Lightweight and optimized for performance
 
-== Installation ==
+== Shortcode ==
+
+* [sheets_cell name="" cell_id=""]
+* cell_id: Google Spreedsheet cell id ( Sheet1!A1 ) = Sheet1 = 'set your sheet name' - A1 = 'cell id'
+* name: Add name for the shortcode ( price )
+
+= Installation =
 How to install SheetsCell
 1. Upload the sheetscell folder to the /wp-content/plugins/ directory or Navigate to the 'Add New' in the plugins dashboard
 and Search for 'SheetsCell'
@@ -39,12 +45,25 @@ You can follow the instructions in Google's documentation to get an API key: htt
 
 You can find your Google Sheets ID in the URL of your Google Sheet. It's the string of letters and numbers between "/d/" and "/edit" in the URL.
 
-== Changelog ==
+= How do I find sheets Cell ID? =
+Right click on the cell, Scroll down hover over more view more cell actions, click protect range( click on add a sheet or range ) under range you can see the sheet id
 
-= 1.0.0 =
+== Screenshots ==
+
+01. Sheetscell settings panel
+02. Shortcode used in table
+03. Data disply to frontend
+04. Google Sheets data view
+05. Create project to google console
+06. Select the project and hover over APIs & Services, and credentials
+07. Create API key
+08. genarated Google API key
+09. Search Google Sheets API in APIs and Services
+10. Enable Google Sheets API for the project
+11. Make your google sheets permission for anyone with the link
+12. Get Sheets ID 
+13. Get Sheets cell ID
+
+= 1.0.1 =
 
 Initial release
-== Upgrade Notice ==
-
-= 1.0.0 =
-Initial release. No upgrade necessary.
