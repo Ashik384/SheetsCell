@@ -85,7 +85,7 @@ class SheetsCell {
                         <th scope="row"><?php echo esc_html( __( 'Set caching time', 'sheetscell' ) ); ?></th>
                         <td>
                         <input type="text" class="sc_input_field" name="sheetscell_option_settings[sheets_caching_time]" value="<?php echo $sheets_caching_time; ?>">
-                        <p><?php echo esc_html('43200s = 6hrs'); ?></p>
+                        <p><?php echo esc_html('43200sec = 6hrs'); ?></p>
                         <p style="color:red"> <?php echo esc_html( __( 'When google sheets data updated you can save settings, so that it will clear cache', 'sheetscell' ) ) ?>  </p>
                         </td>
                     </tr>
