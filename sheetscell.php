@@ -3,7 +3,6 @@
 /**
  * @wordpress-plugin
  * Plugin Name:       SheetsCell - Get Your Google Sheet Specific Cell data
- * Plugin URI:        https://www.linkedin.com/in/ashikul-islam-ashik-a61479142/
  * Description:       A simple plugin that help you to Display Google Sheets Spacific Cell data in wordpress website using shortcodes. You can use the shortcode in pages and posts in your website. simply you will have to add google api key and google sheets ID.
  * Version:           1.0.1
  * Requires at least: 5.2
