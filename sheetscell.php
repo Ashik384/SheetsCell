@@ -22,10 +22,16 @@ class SheetsCell {
         define( 'SHEETSCELL_PLUGIN_URL', plugin_dir_url( __FILE__ ) );
         define( 'SHEETSCELL_PLUGIN_VERSION', '1.0.1' );
 
+        add_action( 'admin_init', array( $this, 'sheetscell_load_text_domain' ) );
         add_shortcode( 'sheets_cell', array( $this, 'sheetscell_shortcode_callback' ) );
         add_action( 'admin_menu', array( $this, 'add_options_page' ) );
         add_action( 'admin_enqueue_scripts', array( $this, 'sheetscell_admin_scripts' ) );
         add_action( 'admin_init', array( $this, 'sheetscell_option_save_func' ) );
+    }
+
+    //textdomain
+    public function sheetscell_load_text_domain(){
+         load_plugin_textdomain( 'sheetscell', false, dirname( plugin_basename( __FILE__ ) ) . '/languages' ); 
     }
 
     //enqueue style
