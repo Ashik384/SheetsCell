@@ -2,8 +2,8 @@
 
 Contributors: mdashikul
 Tags: google sheets, shortcode, api key, cell data
-Requires at least: 4.0
-Tested up to: 5.9
+Requires at least: 5.2
+Tested up to: 6.2
 Stable tag: 1.0.1
 License: GPLv2 or later
 License URI: https://www.gnu.org/licenses/gpl-2.0.html

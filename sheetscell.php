@@ -10,6 +10,7 @@
  * Author:            Ashik Ul Islam
  * Author URI:        https://www.linkedin.com/in/ashikul-islam-ashik-a61479142/
  * Text Domain:       sheetscell
+ * Domain Path:       /languages
  * License:           GPL v2 or later
  * License URI:       http://www.gnu.org/licenses/gpl-2.0.txt
  */
@@ -69,6 +70,7 @@ class SheetsCell {
         <div class="wrap">
             <h2><?php echo esc_html( __( 'SheetsCell Settings Page', 'sheetscell' ) ); ?></h2>
             <form method="post" action="" id="sheetscell_option_form">
+            <?php wp_nonce_field( 'sheetscell_option_save', 'sheetscell_option_nonce' ); ?>
             <input type="hidden" name="action" id="" value="sheetscell_option_save">
             <h2><?php echo esc_html( __( 'Add sheetscell info', 'sheetscell' ) ); ?></h2>
             <?php echo esc_html( __( 'Dont Have Google API KEY?', 'sheetscell' ) ); ?> -
@@ -116,9 +118,37 @@ class SheetsCell {
 
         if ( isset( $_POST['action'] ) && $_POST['action'] == 'sheetscell_option_save' ) {
 
-            $sheetscell_options = $_POST['sheetscell_option_settings'];
-            $sheetscell_options = array_map( 'sanitize_text_field', $sheetscell_options );
-            $update             = update_option( 'sheetscell_option_settings', $sheetscell_options );
+            //nonce verify
+            if ( ! wp_verify_nonce( $_POST['sheetscell_option_nonce'], 'sheetscell_option_save' ) ) {
+                die( __( 'Security check!', 'sheetscell' ) );
+            }
+            
+            function validate_escaped_value( $value ) {
+                if ( ! preg_match( '/^[a-zA-Z0-9]+$/', $value ) ) {
+                    return false;
+                }
+                if ( strlen( $value ) < 3 || strlen( $value ) > 10 ) {
+                    return false;
+                }
+                return true;
+            }
+
+            $sheetscell_options = isset( $_POST['sheetscell_option_settings'] ) ? $_POST['sheetscell_option_settings'] : array();
+            $sanitized_options = array();
+            foreach ( $sheetscell_options as $key => $value ) {
+                // Sanitize each value
+                $sanitized_value = sanitize_text_field( $value );
+                // Escape each value
+                $escaped_value = esc_attr( $sanitized_value );
+                // Validate each value
+                if ( ! validate_escaped_value( $escaped_value ) ) {
+                    continue;
+                }
+                // Store the sanitized, escaped, and validated value
+                $sanitized_options[ $key ] = $escaped_value;
+            }
+
+            $update = update_option( 'sheetscell_option_settings', $sanitized_options );
             wp_redirect( admin_url( '/options-general.php?page=google-sheetscell' ) );
             exit;
         }
@@ -183,7 +213,7 @@ class SheetsCell {
                         // ...
                     }
                     if ( isset( $error["status"] ) && $error["status"] === "INVALID_ARGUMENT" ) {
-                        echo $error["message"];
+                        echo esc_html( $error["message"] );
                     } else {
                         if ( isset( $json_body["values"][0][0] ) ) {
                             $cell_value = $json_body["values"][0][0];
