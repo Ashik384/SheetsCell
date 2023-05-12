@@ -100,7 +100,7 @@ class SheetsCell {
                     <tr>
                         <td scope="row"> <?php echo esc_html( __('Shortcode view', 'sheetscell' ) ); ?> - </td>
                         <td style="font-weight: 600;">
-                            [sheets_cell name="price-data" cell_id="Sheet1!C1"]
+                            <?php echo esc_html( '[sheets_cell name="price-data" cell_id="Sheet1!C1"]' ); ?>
                             <p>name: <?php echo esc_html( __('Add name for the shortcode', 'sheetscell' ) ); ?> </p>
                             <p>cell_id: <?php echo esc_html( __('Add Cell ID(Sheet1!C1)', 'sheetscell' ) ); ?> </p>
                         </td>
@@ -218,7 +218,7 @@ class SheetsCell {
                         if ( isset( $json_body["values"][0][0] ) ) {
                             $cell_value = $json_body["values"][0][0];
                         } else {
-                            echo __( 'Empty Cell!', 'sheetscell' );
+                            echo esc_html( __( 'Empty Cell!', 'sheetscell' ) );
                         }
                     }
                     // Store the data in transient
@@ -228,7 +228,7 @@ class SheetsCell {
                 $cell_value = $data;
             }
         } else {
-            echo __( "Empty Field! Please ensure that you have entered a valid Google key and Sheets ID", "sheetscell" );
+            echo esc_html( __( "Empty Field! Please ensure that you have entered a valid Google key and Sheets ID", "sheetscell" ) );
         }
 
         $cell_value .= ob_get_clean();
