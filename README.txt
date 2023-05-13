@@ -6,7 +6,7 @@ Requires at least: 5.2
 Tested up to: 6.2
 Stable tag: 1.0.1
 License: GPLv2 or later
-License URI: https://www.gnu.org/licenses/gpl-2.0.html
+License URI: http://www.gnu.org/licenses/gpl-2.0.txt
 
 A simple plugin that helps you display specific cell data from a Google Sheet on your WordPress website using shortcodes. Just add your Google API key and Google Sheets ID, and use the shortcode in your pages and posts.
 

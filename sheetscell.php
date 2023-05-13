@@ -70,7 +70,7 @@ class SheetsCell {
         <div class="wrap">
             <h2><?php echo esc_html( __( 'SheetsCell Settings Page', 'sheetscell' ) ); ?></h2>
             <form method="post" action="" id="sheetscell_option_form">
-            <?php wp_nonce_field( 'sheetscell_option_save_nonce', 'sheetscell_nonce_option' ); ?>
+            <?php wp_nonce_field( 'sheetscell_option_save_nonce_field', 'sheetscell_nonce_field_option' ); ?>
             <input type="hidden" name="action" id="" value="sheetscell_option_save">
             <h2><?php echo esc_html( __( 'Add sheetscell info', 'sheetscell' ) ); ?></h2>
             <?php echo esc_html( __( 'Dont Have Google API KEY?', 'sheetscell' ) ); ?> -
@@ -101,9 +101,9 @@ class SheetsCell {
                         <td scope="row"> <?php echo esc_html( __('Shortcode View', 'sheetscell' ) ); ?> </td>
                         <td style="font-weight: 600;">
                             <?php echo esc_html( '[sheets_cell name="price-data" cell_id="Sheet1!C1"]' ); ?>
-                            <p>name: <?php echo esc_html( __('Add name for the shortcode', 'sheetscell' ) ); ?> </p>
-                            <p>Sheet1: <?php echo esc_html( __('Sheets Name', 'sheetscell' ) ); ?> </p>
-                            <p>C1: <?php echo esc_html( __('Cell ID', 'sheetscell' ) ); ?> </p>
+                            <p><?php echo esc_html( __('name: Add name for the shortcode', 'sheetscell' ) ); ?> </p>
+                            <p><?php echo esc_html( __('Sheet1: Sheets Name', 'sheetscell' ) ); ?> </p>
+                            <p><?php echo esc_html( __('C1: Cell ID', 'sheetscell' ) ); ?> </p>
                         </td>
                     </tr>
 
@@ -117,42 +117,35 @@ class SheetsCell {
     // Function to update data and clear transient catch time
     function sheetscell_option_save_func() {
 
+        //nonce verify
+        if ( isset( $_POST['sheetscell_nonce_field_option'] ) && ! wp_verify_nonce( $_POST['sheetscell_nonce_field_option'], 'sheetscell_option_save_nonce_field' ) ) {
+            die( __( 'Security check!', 'sheetscell' ) );
+        }
+
+        function validate_escaped_value( $value ) {
+            $value = html_entity_decode( $value, ENT_QUOTES, 'UTF-8' );
+            return true;
+        }
+        
         if ( isset( $_POST['action'] ) && $_POST['action'] == 'sheetscell_option_save' ) {
 
-            //nonce verify
-            if ( ! wp_verify_nonce( $_POST['sheetscell_nonce_option'], 'sheetscell_option_save_nonce' ) ) {
-                die( __( 'Security check!', 'sheetscell' ) );
-            }
-
-            function validate_escaped_value( $value ) {
-                $value = html_entity_decode( $value, ENT_QUOTES, 'UTF-8' );
-                return true;
-            }
-            
-            if ( isset( $_POST['action'] ) && $_POST['action'] == 'sheetscell_option_save' ) {
-
-                $sheetscell_options = $_POST['sheetscell_option_settings'];
-                //Sanitize
-                $sheetscell_options_sanitize = array_map( 'sanitize_text_field', $sheetscell_options );
-                //Escaping
-                $sheetscell_options_escaped = array_map( 'esc_attr', $sheetscell_options_sanitize );
-                //validate
-                foreach ( $sheetscell_options_escaped as $key => $value ) {
-                    if ( ! validate_escaped_value( $value ) ) {
-                        wp_die( __( 'Invalid value', 'sheetscell' ) );
-                    }
+            $sheetscell_options = $_POST['sheetscell_option_settings'];
+            //Sanitize
+            $sheetscell_options_sanitize = array_map( 'sanitize_text_field', $sheetscell_options );
+            //Escaping
+            $sheetscell_options_escaped = array_map( 'esc_attr', $sheetscell_options_sanitize );
+            //validate
+            foreach ( $sheetscell_options_escaped as $key => $value ) {
+                if ( ! validate_escaped_value( $value ) ) {
+                    wp_die( __( 'Invalid value', 'sheetscell' ) );
                 }
-
-                $update = update_option( 'sheetscell_option_settings', $sheetscell_options_escaped );
-                wp_redirect( admin_url( '/options-general.php?page=google-sheetscell' ) );
-                exit;
             }
-            
-            $update = update_option( 'sheetscell_option_settings', $sanitized_options );
+
+            $update = update_option( 'sheetscell_option_settings', $sheetscell_options_escaped );
             wp_redirect( admin_url( '/options-general.php?page=google-sheetscell' ) );
             exit;
         }
-
+    
         global $wpdb;
         // Define the table name
         $table_name = $wpdb->prefix . 'options';
